@@ -1,0 +1,22 @@
+# Dynamic inventory - queries AWS directly by tag instead of a static hosts
+# file, so it always reflects what Terraform actually provisioned.
+# Requires: pip install boto3 botocore, and amazon.aws collection installed.
+plugin: amazon.aws.aws_ec2
+regions:
+  - ap-south-1
+
+filters:
+  tag:Project: capstone2
+  instance-state-name: running
+
+keyed_groups:
+  - key: tags.Role
+    prefix: role
+  - key: tags.Environment
+    prefix: env
+
+hostnames:
+  - private-ip-address
+
+compose:
+  ansible_host: private_ip_address

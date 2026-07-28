@@ -1,0 +1,32 @@
+- name: Create jenkins user
+  user:
+    name: jenkins
+    shell: /bin/bash
+    create_home: true
+
+- name: Create agent working directory
+  file:
+    path: /home/jenkins/agent
+    state: directory
+    owner: jenkins
+    group: jenkins
+
+- name: Download agent.jar from Jenkins controller
+  get_url:
+    url: "http://{{ jenkins_controller_host }}:8080/jnlpJars/agent.jar"
+    dest: /home/jenkins/agent/agent.jar
+    owner: jenkins
+    group: jenkins
+  when: jenkins_controller_host is defined
+
+- name: Deploy systemd unit for the agent
+  template:
+    src: jenkins-agent.service.j2
+    dest: /etc/systemd/system/jenkins-agent.service
+  notify: restart jenkins-agent
+
+- name: Ensure jenkins-agent service is enabled
+  systemd:
+    daemon_reload: true
+    name: jenkins-agent
+    enabled: true

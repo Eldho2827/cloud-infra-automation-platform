@@ -1,0 +1,10 @@
+- name: Install OpenJDK 17
+  apt:
+    name: openjdk-17-jdk
+    state: present
+    update_cache: true
+
+- name: Verify Java install
+  command: java -version
+  register: java_version
+  changed_when: false

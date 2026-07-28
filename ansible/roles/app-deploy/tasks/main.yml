@@ -1,0 +1,32 @@
+- name: Log in to container registry
+  community.docker.docker_login:
+    registry_url: "{{ registry_url }}"
+    username: "{{ registry_username }}"
+    password: "{{ registry_password }}"
+  when: registry_username is defined
+  no_log: true
+
+- name: Pull latest application image
+  community.docker.docker_image:
+    name: "{{ app_image }}"
+    source: pull
+    force_source: true
+
+- name: Run application container
+  community.docker.docker_container:
+    name: app
+    image: "{{ app_image }}"
+    state: started
+    restart_policy: unless-stopped
+    published_ports:
+      - "{{ app_port | default(3000) }}:{{ app_port | default(3000) }}"
+    env: "{{ app_env | default({}) }}"
+
+- name: Wait for app health endpoint to respond
+  uri:
+    url: "http://127.0.0.1:{{ app_port | default(3000) }}/health"
+    status_code: 200
+  register: health_check
+  retries: 10
+  delay: 5
+  until: health_check.status == 200

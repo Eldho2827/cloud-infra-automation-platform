@@ -1,0 +1,23 @@
+---
+# Common baseline on every managed node
+- name: Baseline configuration
+  hosts: all
+  become: true
+  roles:
+    - git
+    - java
+    - docker
+    - k8s-prereqs
+
+- name: Configure app nodes
+  hosts: role_app
+  become: true
+  roles:
+    - nginx
+    - app-deploy
+
+- name: Configure Jenkins agent nodes
+  hosts: role_jenkins-agent
+  become: true
+  roles:
+    - jenkins-agent

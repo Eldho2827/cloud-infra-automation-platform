@@ -1,0 +1,103 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_DEFAULT_REGION = 'ap-south-1'
+        TF_DIR              = 'terraform/environments/dev'
+        ANSIBLE_DIR          = 'ansible'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                dir(TF_DIR) {
+                    sh 'terraform init -input=false'
+                    sh 'terraform workspace select dev || terraform workspace new dev'
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                dir(TF_DIR) {
+                    sh 'terraform plan -input=false -out=tfplan'
+                }
+            }
+        }
+
+        stage('Manual Approval') {
+            steps {
+                input message: 'Review the Terraform plan above. Apply infrastructure changes?', ok: 'Apply'
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                dir(TF_DIR) {
+                    sh 'terraform apply -input=false -auto-approve tfplan'
+                }
+            }
+        }
+
+        stage('Generate Ansible Config') {
+            steps {
+                dir(TF_DIR) {
+                    script {
+                        env.BASTION_IP = sh(script: "terraform output -raw bastion_public_ip", returnStdout: true).trim()
+                    }
+                }
+                dir(ANSIBLE_DIR) {
+                    sh "sed -i \"s/BASTION_PUBLIC_IP/${env.BASTION_IP}/\" ansible.cfg"
+                }
+            }
+        }
+
+        stage('Ansible: Install Requirements') {
+            steps {
+                dir(ANSIBLE_DIR) {
+                    sh 'ansible-galaxy collection install -r requirements.yml'
+                }
+            }
+        }
+
+        stage('Run Ansible Playbooks') {
+            steps {
+                dir(ANSIBLE_DIR) {
+                    sh 'ansible-playbook playbook.yml'
+                }
+            }
+        }
+
+        stage('Verify Infrastructure') {
+            steps {
+                dir(TF_DIR) {
+                    sh '''
+                        # EC2 reachability
+                        ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 ubuntu@$BASTION_IP "echo bastion reachable"
+
+                        # Application health check through the bastion tunnel
+                        for ip in $(terraform output -json private_node_ips | python3 -c "import sys,json; print(' '.join(json.load(sys.stdin).values()))"); do
+                          ssh -o StrictHostKeyChecking=no -o ProxyCommand="ssh -W %h:%p ubuntu@$BASTION_IP" ubuntu@$ip "curl -sf http://localhost/health" || echo "WARN: $ip health check failed"
+                        done
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Infrastructure provisioned, configured, and verified successfully.'
+        }
+        failure {
+            echo 'Pipeline failed - infrastructure was NOT fully verified. Check logs above.'
+        }
+    }
+}

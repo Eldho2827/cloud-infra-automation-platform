@@ -1,0 +1,12 @@
+[Unit]
+Description=Jenkins Agent
+After=network.target
+
+[Service]
+User=jenkins
+WorkingDirectory=/home/jenkins/agent
+ExecStart=/usr/bin/java -jar /home/jenkins/agent/agent.jar -jnlpUrl http://{{ jenkins_controller_host }}:8080/computer/{{ inventory_hostname }}/jenkins-agent.jnlp -secret {{ jenkins_agent_secret | default('CHANGE_ME') }} -workDir "/home/jenkins/agent"
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
