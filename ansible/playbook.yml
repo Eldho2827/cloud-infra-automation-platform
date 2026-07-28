@@ -3,6 +3,7 @@
 - name: Baseline configuration
   hosts: all
   become: true
+  tags: [baseline]
   roles:
     - git
     - java
@@ -12,12 +13,14 @@
 - name: Configure app nodes
   hosts: role_app
   become: true
+  tags: [app]
   roles:
     - nginx
     - app-deploy
 
 - name: Configure Jenkins agent nodes
-  hosts: role_jenkins-agent
+  hosts: role_jenkins_agent
   become: true
+  tags: [jenkins-agent]
   roles:
     - jenkins-agent
