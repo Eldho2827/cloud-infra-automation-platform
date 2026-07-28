@@ -2,11 +2,14 @@ pipeline {
     agent any
 
     environment {
-        AWS_DEFAULT_REGION = 'ap-south-1'
-        TF_DIR              = 'terraform/environments/dev'
-        ANSIBLE_DIR          = 'ansible'
-    }
-
+    AWS_DEFAULT_REGION    = 'ap-south-1'
+    TF_DIR                = 'terraform/environments/dev'
+    ANSIBLE_DIR           = 'ansible'
+    AWS_ACCESS_KEY_ID     = credentials('Access_key')
+    AWS_SECRET_ACCESS_KEY = credentials('Secret_key')
+    TF_VAR_key_name       = 'key mumbai'
+    TF_VAR_admin_cidrs    = '["103.175.136.131/32"]'
+}
     stages {
 
         stage('Checkout') {
