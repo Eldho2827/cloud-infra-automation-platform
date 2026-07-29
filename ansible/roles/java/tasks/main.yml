@@ -1,8 +1,13 @@
-- name: Install OpenJDK 17
+- name: Install OpenJDK 21
   apt:
-    name: openjdk-17-jdk
+    name: openjdk-21-jdk
     state: present
     update_cache: true
+
+- name: Ensure Java 21 is the active default (in case Java 17 is also installed)
+  alternatives:
+    name: java
+    path: /usr/lib/jvm/java-21-openjdk-amd64/bin/java
 
 - name: Verify Java install
   command: java -version
