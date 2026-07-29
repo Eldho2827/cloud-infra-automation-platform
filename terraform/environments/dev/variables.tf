@@ -25,9 +25,8 @@ variable "admin_cidrs" {
 
 variable "bastion_instance_type" {
   type    = string
-  default = "t3.micro"
+  default = "t3.small"
 }
-
 variable "node_instance_type" {
   type    = string
   default = "t3.small"
