@@ -18,6 +18,13 @@ ingress {
     protocol    = "tcp"
     cidr_blocks = var.admin_cidrs
   }
+ingress {
+    description = "Jenkins agent connections from within VPC"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
+  }
   egress {
     from_port   = 0
     to_port     = 0
