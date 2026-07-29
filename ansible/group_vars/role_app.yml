@@ -1,0 +1,3 @@
+app_image: "traefik/whoami"
+app_port: 8081
+app_container_port: 80

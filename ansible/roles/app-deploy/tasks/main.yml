@@ -18,8 +18,8 @@
     image: "{{ app_image }}"
     state: started
     restart_policy: unless-stopped
-    published_ports:
-      - "{{ app_port | default(3000) }}:{{ app_port | default(3000) }}"
+   published_ports:
+      - "{{ app_port | default(3000) }}:{{ app_container_port | default(app_port) | default(3000) }}"
     env: "{{ app_env | default({}) }}"
 
 - name: Wait for app health endpoint to respond
