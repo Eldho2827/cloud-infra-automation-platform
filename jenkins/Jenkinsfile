@@ -76,19 +76,17 @@ pipeline {
             }
         }
 
-        stage('Verify Infrastructure') {
-            steps {
-                dir(TF_DIR) {
-                    sh '''
-                        echo "bastion reachable (Jenkins is running on it)"
-                        for ip in $(terraform output -json private_node_ips | python3 -c "import sys,json; print(' '.join(json.load(sys.stdin).values()))"); do
-                          ssh -o StrictHostKeyChecking=no -i ~/.ssh/key-mumbai.pem ubuntu@$ip "curl -sf http://localhost/health" || echo "WARN: $ip health check failed"
-                        done
-                    '''
-                }
-            }
+      stage('Verify Infrastructure') {
+    steps {
+        dir(TF_DIR) {
+            sh '''
+                echo "bastion reachable (Jenkins is running on it)"
+                APP_IP=$(terraform output -json private_node_ips | python3 -c "import sys,json; print(json.load(sys.stdin)['app-node-1'])")
+                ssh -o StrictHostKeyChecking=no -i ~/.ssh/key-mumbai.pem ubuntu@$APP_IP "curl -sf http://localhost/health" && echo "App health check: OK" || echo "WARN: app-node-1 health check failed"
+            '''
         }
     }
+}
 
     post {
         success {
