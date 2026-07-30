@@ -1,914 +1,216 @@
-# 🚀 Infrastructure Automation Platform on AWS
+# Infrastructure Automation Platform on AWS
 
 <p align="center">
-
-![AWS](https://img.shields.io/badge/AWS-EC2%20%7C%20VPC%20%7C%20IAM%20%7C%20S3%20%7C%20CloudWatch-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
-![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?style=for-the-badge&logo=terraform)
-![Ansible](https://img.shields.io/badge/Ansible-Automation-EE0000?style=for-the-badge&logo=ansible)
-![Jenkins](https://img.shields.io/badge/Jenkins-CI%2FCD-D24939?style=for-the-badge&logo=jenkins)
-![Docker](https://img.shields.io/badge/Docker-Containers-2496ED?style=for-the-badge&logo=docker)
-![NGINX](https://img.shields.io/badge/NGINX-Reverse%20Proxy-009639?style=for-the-badge&logo=nginx)
-![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04-E95420?style=for-the-badge&logo=ubuntu)
-![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
-
+<img src="https://img.shields.io/badge/AWS-FF9900?style=flat-square&logo=amazonaws&logoColor=white" />
+<img src="https://img.shields.io/badge/Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white" />
+<img src="https://img.shields.io/badge/Ansible-EE0000?style=flat-square&logo=ansible&logoColor=white" />
+<img src="https://img.shields.io/badge/Jenkins-D24939?style=flat-square&logo=jenkins&logoColor=white" />
+<img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white" />
+<img src="https://img.shields.io/badge/NGINX-009639?style=flat-square&logo=nginx&logoColor=white" />
+<img src="https://img.shields.io/badge/Ubuntu%2024.04-E95420?style=flat-square&logo=ubuntu&logoColor=white" />
 </p>
 
----
-<p align="center">
-
-🎯 **Infrastructure as Code** • ☁️ **AWS** • ⚙️ **Terraform** • 🤖 **Ansible** • 🚀 **Jenkins**
-
-</p>
-
-# 📖 Overview
-
-This project demonstrates a **production-inspired Infrastructure Automation Platform** built on **Amazon Web Services (AWS)** using modern **Infrastructure as Code (IaC)** and **DevOps automation** practices.
-
-The platform provisions AWS infrastructure using **Terraform**, automatically configures servers using **Ansible**, and orchestrates the complete workflow through a **Jenkins Declarative Pipeline** with a **manual approval gate** before any infrastructure changes are applied.
-
-The deployment includes secure networking, dynamic configuration management, containerized application deployment, and automated infrastructure validation, closely resembling a real-world DevOps workflow.
-
-All infrastructure was deployed, configured, validated, and destroyed successfully in the **AWS ap-south-1 (Mumbai)** region.
-
----
-## 📑 Table of Contents
-
-- [Overview](#-overview)
-- [Project Objectives](#-project-objectives)
-- [Key Features](#-key-features)
-- [Technology Stack](#️-technology-stack)
-- [Architecture](#️-architecture)
-- [High-Level Workflow](#-high-level-workflow)
-- [Infrastructure Provisioned](#️-infrastructure-provisioned)
-- [Repository Structure](#-repository-structure)
-- [Project Highlights](#-project-highlights)
-- [Terraform Architecture](#️-terraform-architecture)
-- [Remote State Management](#-remote-state-management)
-- [Terraform Workspaces](#-terraform-workspaces)
-- [Ansible Automation](#-ansible-automation)
-- [Jenkins Pipeline](#-jenkins-pipeline)
-- [Setup Instructions](#️-setup-instructions)
-- [Validation Performed](#-validation-performed)
-- [Project Gallery](#-project-gallery)
-- [Challenges & Troubleshooting](#️-challenges--troubleshooting)
-- [Key Learnings](#-key-learnings)
-- [Future Improvements](#-future-improvements)
-- [Author](#-author)
-- [License](#-license)
-  
-# 🎯 Project Objectives
-
-- Provision AWS infrastructure using Terraform
-- Store Terraform state remotely in Amazon S3
-- Enable Terraform state locking using DynamoDB
-- Build reusable Terraform modules
-- Configure EC2 instances automatically using Ansible
-- Implement AWS EC2 Dynamic Inventory
-- Deploy a Dockerized application
-- Configure NGINX as a reverse proxy
-- Automate the complete workflow using Jenkins
-- Implement a Manual Approval Gate before deployment
-- Validate infrastructure automatically after deployment
-- Follow Infrastructure-as-Code and DevOps best practices
+<p align="center"><strong>A self-service AWS infrastructure pipeline: request → plan → approve → provision → configure → verify — with zero manual server setup.</strong></p>
 
 ---
 
-# ✨ Key Features
+## Why this project
 
-- ✅ Modular Terraform Architecture
-- ✅ Remote Terraform State (Amazon S3)
-- ✅ DynamoDB State Locking
-- ✅ Multi-Environment Support using Terraform Workspaces
-- ✅ Dynamic AWS Inventory using Ansible
-- ✅ Idempotent Configuration Management
-- ✅ Dockerized Application Deployment
-- ✅ NGINX Reverse Proxy Configuration
-- ✅ Jenkins Controller + Dedicated Agent Architecture
-- ✅ Manual Approval Stage in Jenkins Pipeline
-- ✅ Automated Infrastructure Validation
-- ✅ Secure Bastion Host Architecture
-- ✅ Least-Privilege IAM & Security Groups
-- ✅ End-to-End Infrastructure Automation
+Most infrastructure work in a real team isn't "spin up one server" — it's "provision it safely, the same way, every time, with a human checkpoint before anything touches production." This project builds that workflow end-to-end: Terraform provisions the AWS environment, Ansible configures every server automatically, and a Jenkins pipeline ties it together with a **manual approval gate** before any change is applied.
+
+Everything below was deployed live in AWS (`ap-south-1`, Mumbai) — provisioned, validated, and cleanly destroyed. Screenshots throughout are from that real run, not a simulation.
+
+**What it demonstrates:**
+- Modular, reusable Terraform (network / security / IAM / compute)
+- Remote state with locking (S3 + DynamoDB) — safe for team collaboration
+- Multi-environment support via Terraform Workspaces (`dev`, `staging`), fully isolated
+- Zero-touch server configuration via Ansible's dynamic AWS inventory (no static IP lists)
+- A CI/CD pipeline with a real governance step — not just "push to deploy"
+- Idempotent automation, proven by re-running the playbook with zero changes on the second pass
 
 ---
 
-# 🛠️ Technology Stack
-
-| Category | Technologies |
-|-----------|--------------|
-| Cloud Platform | AWS |
-| Infrastructure as Code | Terraform |
-| Configuration Management | Ansible |
-| CI/CD | Jenkins |
-| Containers | Docker |
-| Reverse Proxy | NGINX |
-| Operating System | Ubuntu 24.04 |
-| Source Control | Git & GitHub |
-| Remote State | Amazon S3 |
-| State Locking | DynamoDB |
-
----
-
-# 🏗️ Architecture
+## Architecture
 
 <p align="center">
-<img src="docs/architecture-diagram.png" width="1000">
+<img src="docs/architecture-diagram.png" width="900">
 </p>
+
+**Network:** Custom VPC (`10.0.0.0/16`) with public + private subnets, Internet Gateway, NAT Gateway, and route tables.
+
+**Compute:**
+| Instance | Role | Placement |
+|---|---|---|
+| Bastion Host | SSH gateway + Jenkins Controller | Public subnet |
+| Application Server | Docker + NGINX reverse proxy + demo app | Private subnet |
+| Jenkins Agent | Dedicated build agent (WebSocket) | Private subnet |
+
+**Security:** Least-privilege security groups — SSH restricted to the administrator's IP, internal traffic scoped to the VPC CIDR, private instances never internet-facing.
+
+**IAM:** Instance role with `AmazonSSMManagedInstanceCore` and `CloudWatchAgentServerPolicy` attached — no long-lived credentials on the boxes.
+
 ---
 
-# 🔄 High-Level Workflow
+## Pipeline flow
 
 ```text
-                 Developer
-                      │
-                      ▼
-             Push Code to GitHub
-                      │
-                      ▼
-               Jenkins Pipeline
-                      │
-        ┌─────────────┴─────────────┐
-        │                           │
-        ▼                           ▼
- Terraform Init              Terraform Plan
-        │                           │
-        └─────────────┬─────────────┘
-                      ▼
-             Manual Approval Gate
-                      │
-                      ▼
-              Terraform Apply
-                      │
-                      ▼
-        AWS Infrastructure Provisioned
-                      │
-                      ▼
-       AWS EC2 Dynamic Inventory (Ansible)
-                      │
-                      ▼
-             Ansible Configuration
-                      │
-      ┌───────────────┼────────────────┐
-      ▼               ▼                ▼
- Install Docker   Configure NGINX   Jenkins Agent
-      │               │                │
-      └───────────────┼────────────────┘
-                      ▼
-         Deploy Containerized Application
-                      │
-                      ▼
-           Infrastructure Verification
-                      │
-                      ▼
-               Pipeline Completed
-```
-
----
-
-# ☁️ Infrastructure Provisioned
-
-## Networking
-
-- Custom VPC (10.0.0.0/16)
-- Public Subnet
-- Private Subnet
-- Internet Gateway
-- NAT Gateway
-- Route Tables
-- Route Table Associations
-- Elastic IP
-
-### Compute
-
-#### Bastion Host
-
-- Ubuntu 24.04
-- t3.small
-- Elastic IP
-- Jenkins Controller
-- SSH Gateway
-
-#### Application Server
-
-- Ubuntu 24.04
-- Private Subnet
-- Docker Engine
-- NGINX Reverse Proxy
-- Containerized Demo Application
-
-#### Jenkins Agent
-
-- Ubuntu 24.04
-- Private Subnet
-- Dedicated Build Agent
-- WebSocket Communication
-
-### Security
-
-- Least-Privilege Security Groups
-- SSH Restricted to Administrator IP
-- Private Instances Not Publicly Accessible
-- Internal Communication Limited to VPC CIDR
-
-### IAM
-
-- IAM Role
-- IAM Instance Profile
-
-Attached Policies:
-
-- AmazonSSMManagedInstanceCore
-- CloudWatchAgentServerPolicy
-
----
-
-# 📂 Repository Structure
-
-```text
-cloud-infra-automation-platform/
-│
-├── terraform/
-│   ├── backend-bootstrap/
-│   │   └── main.tf
-│   │
-│   ├── environments/
-│   │   └── dev/
-│   │       ├── backend.tf
-│   │       ├── main.tf
-│   │       ├── outputs.tf
-│   │       ├── terraform.tfvars.example
-│   │       └── variables.tf
-│   │
-│   └── modules/
-│       ├── network/
-│       ├── security/
-│       ├── iam/
-│       └── compute/
-│
-├── ansible/
-│   ├── inventory/
-│   │   └── aws_ec2.yml
-│   ├── group_vars/
-│   ├── roles/
-│   │   ├── app-deploy/
-│   │   ├── docker/
-│   │   ├── git/
-│   │   ├── java/
-│   │   ├── jenkins-agent/
-│   │   ├── k8s-prereqs/
-│   │   └── nginx/
-│   ├── ansible.cfg
-│   ├── playbook.yml
-│   └── requirements.yml
-│
-├── jenkins/
-│   └── Jenkinsfile
-│
-├── docs/
-│   └── architecture-diagram.png
-│
-├── screenshots/
-│
-├── README.md
-└── .gitignore
-```
-
----
-
-# 📸 Project Highlights
-
-| Screenshot | Description |
-|------------|-------------|
-| `screenshots/03-s3-dynamodb.png` | Remote Terraform Backend (S3 + DynamoDB) |
-| `screenshots/07-vpc-console.png` | AWS Networking Resources |
-| `screenshots/11-compute-apply.png` | Compute Infrastructure Provisioned |
-| `screenshots/15-ansible-ping.png` | Dynamic Inventory Verification |
-| `screenshots/17-idempotency-check.png` | Idempotent Ansible Execution |
-| `screenshots/manual-approval-plan.png` | Jenkins Manual Approval Stage |
-| `screenshots/pipeline-success.png` | Successful End-to-End Pipeline Execution |
-
----
-# 🏗️ Terraform Architecture
-
-The infrastructure is organized into reusable Terraform modules, making the project scalable, maintainable, and easy to extend.
-
-## 📦 Network Module
-
-Responsible for provisioning the networking layer:
-
-- VPC
-- Public Subnet
-- Private Subnet
-- Internet Gateway
-- NAT Gateway
-- Route Tables
-- Route Table Associations
-- Elastic IP
-
----
-
-## 🔒 Security Module
-
-Creates and manages Security Groups.
-
-Features:
-
-- SSH access restricted to the administrator's public IP
-- Internal communication limited to the VPC CIDR
-- Private instances inaccessible from the Internet
-- Least-Privilege security model
-
----
-
-## 👤 IAM Module
-
-Creates:
-
-- IAM Role
-- IAM Instance Profile
-
-Attached AWS Managed Policies:
-
-- AmazonSSMManagedInstanceCore
-- CloudWatchAgentServerPolicy
-
----
-
-## 💻 Compute Module
-
-Automatically provisions:
-
-- Bastion Host
-- Application Server
-- Jenkins Agent
-
-Each instance is created with the required IAM Instance Profile, Security Groups, and Tags.
-
----
-
-# 🔐 Remote State Management
-
-Terraform Remote State is configured using AWS services.
-
-| Service | Purpose |
-|---------|---------|
-| Amazon S3 | Stores Terraform State |
-| DynamoDB | Prevents concurrent state modifications |
-
-## Benefits
-
-- Shared team state
-- Versioned infrastructure
-- Safe collaboration
-- State locking
-- Supports multiple environments
-
----
-
-# 🌍 Terraform Workspaces
-
-The project supports multiple environments using Terraform Workspaces.
-
-Validated Workspaces:
-
-- dev
-- staging
-
-Both environments share the same Terraform code while maintaining completely isolated infrastructure and state files.
-
-### Validation
-
-Development Workspace
-
-![](screenshots/workspace-dev-plan.png)
-
----
-
-Staging Workspace
-
-![](screenshots/workspace-staging-plan.png)
-
----
-
-# 🤖 Ansible Automation
-
-Infrastructure configuration is fully automated using Ansible.
-
-## Dynamic Inventory
-
-Instead of maintaining static inventory files, Ansible automatically discovers EC2 instances using the AWS EC2 Inventory Plugin.
-
-Screenshot:
-
-![](screenshots/14-dynamic-inventory.png)
-
----
-
-## Roles Implemented
-
-### Git
-
-- Installs Git on all managed nodes.
-
----
-
-### Java
-
-- Installs OpenJDK required by Jenkins Agent.
-- Ensures the Agent Java version matches the Jenkins Controller.
-
----
-
-### Docker
-
-Automatically installs:
-
-- Docker Engine
-- Docker CLI
-- Container Runtime
-
-Also enables and starts the Docker service.
-
----
-
-### Kubernetes Prerequisites
-
-Although Kubernetes is not deployed in this project, the servers are prepared with:
-
-- Swap disabled
-- Required kernel modules
-- sysctl configuration
-
-making them Kubernetes-ready.
-
----
-
-### NGINX
-
-Configures NGINX as a Reverse Proxy.
-
-Requests are forwarded to the Docker container hosting the application.
-
----
-
-### Application Deployment
-
-Automatically performs:
-
-- Pull Docker image
-- Start container
-- Verify application health
-
----
-
-### Jenkins Agent
-
-Automatically:
-
-- Creates Jenkins user
-- Downloads latest agent.jar
-- Configures systemd service
-- Starts Jenkins Agent
-- Connects via WebSocket
-
----
-
-# 🚀 Jenkins Pipeline
-
-The entire Infrastructure Automation workflow is orchestrated using a Jenkins Declarative Pipeline.
-
-## Pipeline Stages
-
-```text
-Checkout
-     ↓
-Terraform Init
-     ↓
-Workspace Selection
-     ↓
-Terraform Plan
-     ↓
-Manual Approval
-     ↓
-Terraform Apply
-     ↓
-Install Ansible Collections
-     ↓
-Run Ansible Playbooks
-     ↓
-Infrastructure Verification
-     ↓
+Push to GitHub
+      │
+      ▼
+Jenkins: Checkout → Terraform Init → Terraform Plan
+      │
+      ▼
+Manual Approval Gate  ◄── human sign-off before anything is applied
+      │
+      ▼
+Terraform Apply  →  AWS infrastructure provisioned
+      │
+      ▼
+Ansible (dynamic EC2 inventory) configures every node:
+   Docker · NGINX · Java · Jenkins Agent · App Deployment
+      │
+      ▼
+Automated Verification (SSH, app health, agent connectivity)
+      │
+      ▼
 Pipeline Success
 ```
 
 ---
 
-## Checkout Source Code
+## Repository structure
 
-Clones the GitHub repository.
-
-![](screenshots/21-github-repo.png)
-
----
-
-## Terraform Initialization
-
-Initializes providers, modules, and backend.
-
-![](screenshots/04-dev-init.png)
-
----
-
-## Terraform Plan
-
-Generates execution plans before deployment.
-
-Screenshots:
-
-![](screenshots/05-network-plan.png)
-
-![](screenshots/08-security-iam-plan.png)
-
-![](screenshots/10-compute-plan.png)
+```text
+cloud-infra-automation-platform/
+├── terraform/
+│   ├── backend-bootstrap/        # S3 + DynamoDB remote state setup
+│   ├── environments/dev/         # Root module for the dev environment
+│   └── modules/                  # network, security, iam, compute
+├── ansible/
+│   ├── inventory/aws_ec2.yml     # Dynamic AWS inventory
+│   └── roles/                    # docker, nginx, java, git, jenkins-agent, app-deploy
+├── jenkins/Jenkinsfile
+├── docs/architecture-diagram.png
+└── screenshots/
+```
 
 ---
 
-## Manual Approval
+## Terraform design
 
-Infrastructure changes require human approval before deployment.
+| Module | Responsibility |
+|---|---|
+| **network** | VPC, subnets, IGW, NAT Gateway, route tables |
+| **security** | Security groups — SSH locked to admin IP, VPC-internal traffic only |
+| **iam** | IAM role + instance profile with least-privilege managed policies |
+| **compute** | Bastion, application server, Jenkins agent — each wired with the above |
 
-![](screenshots/manual-approval-plan.png)
+**Remote state:** Terraform state lives in S3 with DynamoDB state locking, so concurrent applies can't corrupt state — the same pattern a team would use in production.
 
----
-
-## Terraform Apply
-
-Creates AWS infrastructure.
-
-![](screenshots/06-network-apply.png)
-
-![](screenshots/09-security-iam-apply.png)
-
-![](screenshots/11-compute-apply.png)
+**Workspaces:** `dev` and `staging` share identical code but maintain fully isolated infrastructure and state. Verified by planning a `staging` workspace from scratch (21 net-new resources, zero collision with `dev`).
 
 ---
 
-## Install Required Ansible Collections
+## Ansible automation
 
-Automatically installs required Ansible Galaxy collections.
+Instead of a static inventory file, Ansible discovers every EC2 instance automatically via the **AWS EC2 dynamic inventory plugin** — new instances are configured with no manual wiring.
 
-![](screenshots/13-ansible-install.png)
+| Role | What it does |
+|---|---|
+| `git`, `java` | Baseline tooling; Java version pinned to match the Jenkins Controller |
+| `docker` | Installs and enables the Docker engine |
+| `k8s-prereqs` | Preps nodes to be Kubernetes-ready (swap disabled, kernel modules, sysctl) |
+| `nginx` | Reverse proxy, forwarding to the app container |
+| `app-deploy` | Pulls the image, starts the container, verifies health |
+| `jenkins-agent` | Provisions the Jenkins user, agent.jar, systemd service, WebSocket connection |
 
----
-
-## Configure Infrastructure
-
-Runs Ansible playbooks to configure every server.
-
-Tasks include:
-
-- Git
-- Docker
-- Java
-- Kubernetes prerequisites
-- NGINX
-- Jenkins Agent
-- Application Deployment
-
-![](screenshots/16-baseline-playbook-run.png)
+**Idempotency was verified, not assumed:** running the full playbook a second time returned `changed=0` across every host.
 
 ---
 
-## Verify Idempotency
-
-Running the playbook again results in **zero unnecessary changes**, confirming idempotent automation.
-
-![](screenshots/17-idempotency-check.png)
-
----
-
-## Infrastructure Verification
-
-The pipeline validates:
-
-- SSH Connectivity
-- Application Health
-- Jenkins Agent Connectivity
-- Infrastructure Status
-
-![](screenshots/pipeline-success.png)
-
----
-
-# ⚙️ Setup Instructions
-
-## Clone Repository
+## Setup
 
 ```bash
 git clone https://github.com/Eldho2827/cloud-infra-automation-platform.git
-
 cd cloud-infra-automation-platform
-```
 
----
-
-## Bootstrap Terraform Backend
-
-```bash
+# 1. Bootstrap remote state
 cd terraform/backend-bootstrap
+terraform init && terraform apply
 
-terraform init
-
-terraform apply
-```
-
----
-
-## Configure Variables
-
-```bash
+# 2. Configure environment
 cd ../environments/dev
+cp terraform.tfvars.example terraform.tfvars   # set region, key pair, admin IP, CIDR
 
-cp terraform.tfvars.example terraform.tfvars
-```
-
-Update:
-
-- AWS Region
-- Key Pair
-- Administrator IP
-- Instance Type
-- VPC CIDR
-
----
-
-## Initialize Terraform
-
-```bash
+# 3. Provision infrastructure
 terraform init
-```
-
----
-
-## Create Workspace
-
-```bash
 terraform workspace new dev
-```
+terraform plan && terraform apply
 
----
-
-## Provision Infrastructure
-
-```bash
-terraform plan
-
-terraform apply
-```
-
----
-
-## Configure Servers
-
-```bash
+# 4. Configure servers
 cd ../../../ansible
-
 ansible-playbook playbook.yml
+
+# 5. Run the Jenkins pipeline for the full automated flow
 ```
 
 ---
 
-## Execute Jenkins Pipeline
+## Validation performed
 
-Run the Jenkins pipeline.
-
-The pipeline automatically performs:
-
-- Infrastructure Provisioning
-- Server Configuration
-- Docker Deployment
-- Jenkins Agent Configuration
-- Infrastructure Verification
-
----
-
-# ✅ Validation Performed
-
-| Validation | Status |
-|------------|--------|
-| AWS Credentials Verified | ✅ |
-| Remote Backend Configured | ✅ |
-| Terraform Modules Tested | ✅ |
-| Infrastructure Provisioned | ✅ |
-| Bastion SSH Access | ✅ |
-| Dynamic Inventory Working | ✅ |
-| Ansible Playbooks Successful | ✅ |
-| Docker Application Running | ✅ |
-| Jenkins Agent Connected | ✅ |
-| Health Endpoint Verified | ✅ |
-| Workspace Isolation Verified | ✅ |
-| DynamoDB State Locking Verified | ✅ |
-| Full Terraform Destroy Tested | ✅ |
+| Check | Result |
+|---|---|
+| Remote backend (S3 + DynamoDB) | ✅ |
+| Terraform modules — plan & apply | ✅ |
+| Bastion SSH access | ✅ |
+| Dynamic Ansible inventory | ✅ |
+| Idempotent playbook re-run | ✅ |
+| Docker app + NGINX health check | ✅ |
+| Jenkins agent connectivity | ✅ |
+| Workspace isolation (dev/staging) | ✅ |
+| DynamoDB state locking | ✅ |
+| Full `terraform destroy` — clean teardown | ✅ |
 
 ---
 
-# 📸 Project Gallery
+## Project gallery
 
-## AWS Identity Verification
-
-![](screenshots/01-caller-identity.png)
-
----
-
-## Remote Backend
-
-![](screenshots/03-s3-dynamodb.png)
+| | |
+|---|---|
+| ![](screenshots/03-s3-dynamodb.png) *Remote backend* | ![](screenshots/07-vpc-console.png) *Networking* |
+| ![](screenshots/manual-approval-plan.png) *Manual approval gate* | ![](screenshots/15-ansible-ping.png) *Dynamic inventory* |
+| ![](screenshots/17-idempotency-check.png) *Idempotency proof* | ![](screenshots/pipeline-success.png) *Pipeline success* |
 
 ---
 
-## AWS Networking
+## Troubleshooting highlights
 
-![](screenshots/07-vpc-console.png)
+A few real issues hit during the build, and how they were resolved:
 
----
-
-## Bastion SSH
-
-![](screenshots/12-bastion-ssh.png)
-
----
-
-## EC2 Infrastructure
-
-![](screenshots/instances.png)
+- **VPC hairpin NAT** — Ansible on the bastion couldn't reach private nodes via the bastion's public IP. Fixed by routing internal traffic over private IPs, reserving the public IP for external access only.
+- **Jenkins agent `UnsupportedClassVersionError`** — Controller and agent were on mismatched JDK versions. Fixed by pinning both to OpenJDK 21.
+- **Controller memory exhaustion** — `t3.micro` couldn't handle Jenkins + Terraform + Ansible concurrently. Added swap, then moved to `t3.small` for stable headroom.
+- **Inventory variable precedence** — `group_vars` overrides were being ignored in favor of AWS dynamic inventory values. Resolved by moving overrides to `host_vars`, which take precedence.
+- **Agent–controller connectivity** — Blocked until the bastion security group allowed port 8080 from the VPC CIDR, while keeping public access locked to the admin IP.
 
 ---
 
-## Dynamic Inventory
+## What I'd add next
 
-![](screenshots/14-dynamic-inventory.png)
-
----
-
-## Ansible Connectivity
-
-![](screenshots/15-ansible-ping.png)
+Multi-AZ deployment · Application Load Balancer · Auto Scaling · Route 53 + ACM (HTTPS) · Prometheus/Grafana monitoring · AWS Secrets Manager · Trivy/SonarQube scanning · Slack notifications · Blue-green / canary deployment · EKS migration.
 
 ---
 
-## Jenkins Dashboard
+## Author
 
-![](screenshots/jenkins-dashboard.png)
-
----
-
-## Jenkins Agent Online
-
-![](screenshots/jenkins-nodes-online.png)
-
----
-
-## Successful Pipeline
-
-![](screenshots/pipeline-success.png)
-
----
-
-## DynamoDB State Lock Verification
-
-![](screenshots/dynamodb-lock-empty.png)
-
----
-
-# 🛠️ Challenges & Troubleshooting
-
-## 1. VPC Hairpin NAT Issue
-
-**Problem**
-
-Ansible running on the Bastion Host could not SSH to private instances using the Bastion's public IP.
-
-**Solution**
-
-Use private IPs for communication inside the VPC and reserve the public IP only for external access.
-
----
-
-## 2. Jenkins Agent Java Version Mismatch
-
-**Problem**
-
-The Jenkins Agent failed with:
-
-```text
-UnsupportedClassVersionError
-```
-
-**Solution**
-
-Installed the same Java version (OpenJDK 21) on both the Jenkins Controller and Jenkins Agent.
-
----
-
-## 3. Jenkins Controller Memory Exhaustion
-
-**Problem**
-
-A `t3.micro` instance frequently became unresponsive while running Jenkins, Terraform, and Ansible.
-
-**Solution**
-
-- Added temporary swap space
-- Upgraded to `t3.small` for stable execution
-
----
-
-## 4. Dynamic Inventory Variable Precedence
-
-**Problem**
-
-Variables defined in `group_vars` did not override values from the AWS Dynamic Inventory.
-
-**Solution**
-
-Moved the required overrides to `host_vars`, which have higher precedence.
-
----
-
-## 5. Jenkins Connectivity
-
-**Problem**
-
-The Jenkins Agent could not connect to the Jenkins Controller.
-
-**Solution**
-
-Updated the Bastion Security Group to allow port **8080** from the VPC CIDR while keeping public access restricted to the administrator IP.
-
----
-
-# 📚 Key Learnings
-
-Through this project I gained practical experience with:
-
-- Infrastructure as Code using Terraform
-- Modular Terraform Design
-- AWS Networking
-- Remote Terraform State
-- Terraform Workspaces
-- EC2 Provisioning
-- IAM Best Practices
-- Dynamic Inventory using Ansible
-- Configuration Management
-- Idempotent Automation
-- Docker Deployment
-- Jenkins Declarative Pipelines
-- Jenkins Controller-Agent Architecture
-- Secure Infrastructure Design
-- Troubleshooting Real Production Scenarios
-
----
-
-# 🚀 Future Improvements
-
-Possible enhancements include:
-
-- Multi-AZ deployment
-- Application Load Balancer
-- Auto Scaling Groups
-- Route 53 Integration
-- HTTPS using ACM
-- Prometheus & Grafana Monitoring
-- AWS Secrets Manager
-- SonarQube Integration
-- Trivy Image Scanning
-- Slack Notifications
-- Blue-Green Deployment
-- Canary Deployment
-- Amazon EKS Migration
-
----
-
-
-# 📄 License
-
-This project is licensed under the **MIT License**.
-
----
-# 👨‍💻 Author
-
-## Eldho Sabu
-
-**AWS DevOps Engineer**
+**Eldho Sabu** — AWS DevOps Engineer
 
 <p align="left">
-
-<a href="https://github.com/Eldho2827">
-<img src="https://img.shields.io/badge/GitHub-Eldho2827-181717?style=for-the-badge&logo=github" />
-</a>
-
-<a href="https://www.linkedin.com/in/eldho-sabu">
-<img src="https://img.shields.io/badge/LinkedIn-Eldho%20Sabu-0A66C2?style=for-the-badge&logo=linkedin" />
-</a>
-
+<a href="https://github.com/Eldho2827"><img src="https://img.shields.io/badge/GitHub-Eldho2827-181717?style=for-the-badge&logo=github&logoColor=white" /></a>
+<a href="https://www.linkedin.com/in/eldhosabu08"><img src="https://img.shields.io/badge/LinkedIn-Eldho%20Sabu-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" /></a>
+<a href="https://hub.docker.com/u/eldho10"><img src="https://img.shields.io/badge/Docker%20Hub-eldho10-2496ED?style=for-the-badge&logo=docker&logoColor=white" /></a>
 </p>
+
+---
+
+*Licensed under MIT.*
