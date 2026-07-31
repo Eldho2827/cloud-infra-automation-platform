@@ -212,5 +212,3 @@ Multi-AZ deployment · Application Load Balancer · Auto Scaling · Route 53 + A
 </p>
 
 ---
-
-*Licensed under MIT.*
