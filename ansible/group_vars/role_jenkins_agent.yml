@@ -1,2 +1,2 @@
 jenkins_controller_host: "10.0.1.199"
-jenkins_agent_secret: "994331d8d6168e9c19dc1e1537d01c074e587e86123255e898da0c579355bd26"
+jenkins_agent_secret: "{{ vault_jenkins_agent_secret }}"
